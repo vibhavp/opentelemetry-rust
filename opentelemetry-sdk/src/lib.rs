@@ -28,6 +28,9 @@
 
 pub mod export;
 pub mod instrumentation;
+#[cfg(feature = "log")]
+#[cfg_attr(docsrs, doc(cfg(feature = "log")))]
+pub mod log;
 #[cfg(feature = "metrics")]
 #[cfg_attr(docsrs, doc(cfg(feature = "metrics")))]
 pub mod metrics;
@@ -42,6 +45,7 @@ pub mod testing;
 #[cfg(feature = "trace")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trace")))]
 pub mod trace;
+
 #[doc(hidden)]
 pub mod util;
 

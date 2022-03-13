@@ -1,5 +1,5 @@
 use crate::transform::common::to_nanos;
-use opentelemetry::sdk::{self, export::trace::SpanData};
+use opentelemetry::sdk::export::trace::SpanData;
 use opentelemetry::trace::{Link, SpanId, SpanKind, StatusCode};
 
 #[cfg(feature = "gen-tonic")]
@@ -9,7 +9,7 @@ pub mod tonic {
     use crate::proto::tonic::trace::v1::{
         span, status, InstrumentationLibrarySpans, ResourceSpans, Span, Status,
     };
-    use crate::transform::common::tonic::Attributes;
+    use crate::transform::common::tonic::{resource_attributes, Attributes};
 
     impl From<SpanKind> for span::SpanKind {
         fn from(span_kind: SpanKind) -> Self {
@@ -105,17 +105,6 @@ pub mod tonic {
             }
         }
     }
-
-    fn resource_attributes(resource: Option<&sdk::Resource>) -> Attributes {
-        resource
-            .map(|res| {
-                res.iter()
-                    .map(|(k, v)| opentelemetry::KeyValue::new(k.clone(), v.clone()))
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default()
-            .into()
-    }
 }
 
 #[cfg(feature = "gen-protoc")]
@@ -126,7 +115,7 @@ pub mod grpcio {
         InstrumentationLibrarySpans, ResourceSpans, Span, Span_Event, Span_Link, Span_SpanKind,
         Status, Status_StatusCode,
     };
-    use crate::transform::common::grpcio::Attributes;
+    use crate::transform::common::grpcio::{resource_attributes, Attributes};
     use protobuf::{RepeatedField, SingularPtrField};
 
     impl From<SpanKind> for Span_SpanKind {
@@ -234,17 +223,5 @@ pub mod grpcio {
                 ..Default::default()
             }
         }
-    }
-
-    fn resource_attributes(resource: Option<&sdk::Resource>) -> Attributes {
-        resource
-            .map(|resource| {
-                resource
-                    .iter()
-                    .map(|(k, v)| opentelemetry::KeyValue::new(k.clone(), v.clone()))
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default()
-            .into()
     }
 }

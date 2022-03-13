@@ -1,7 +1,7 @@
-#[cfg(feature = "traces")]
+#[cfg(any(feature = "traces", feature = "logs"))]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-#[cfg(feature = "traces")]
+#[cfg(any(feature = "traces", feature = "logs"))]
 pub(crate) fn to_nanos(time: SystemTime) -> u64 {
     time.duration_since(UNIX_EPOCH)
         .unwrap_or_else(|_| Duration::from_secs(0))
@@ -13,7 +13,10 @@ pub mod tonic {
     use crate::proto::tonic::common::v1::{
         any_value, AnyValue, ArrayValue, InstrumentationLibrary, KeyValue,
     };
-    use opentelemetry::{sdk::trace::EvictedHashMap, Array, Value};
+    use opentelemetry::{
+        sdk::{trace::EvictedHashMap, Resource},
+        Array, Value,
+    };
     use std::borrow::Cow;
 
     impl From<opentelemetry::sdk::InstrumentationLibrary> for InstrumentationLibrary {
@@ -85,12 +88,27 @@ pub mod tonic {
 
         ArrayValue { values }
     }
+
+    #[cfg(any(feature = "traces", feature = "logs"))]
+    pub(crate) fn resource_attributes(resource: Option<&Resource>) -> Attributes {
+        resource
+            .map(|res| {
+                res.iter()
+                    .map(|(k, v)| opentelemetry::KeyValue::new(k.clone(), v.clone()))
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default()
+            .into()
+    }
 }
 
 #[cfg(feature = "gen-protoc")]
 pub mod grpcio {
     use crate::proto::grpcio::common::{AnyValue, ArrayValue, InstrumentationLibrary, KeyValue};
-    use opentelemetry::{sdk::trace::EvictedHashMap, Array, Value};
+    use opentelemetry::{
+        sdk::{trace::EvictedHashMap, Resource},
+        Array, Value,
+    };
     use protobuf::RepeatedField;
     use std::borrow::Cow;
 
@@ -170,5 +188,18 @@ pub mod grpcio {
         let mut array_value = ArrayValue::new();
         array_value.set_values(values);
         array_value
+    }
+
+    #[cfg(any(feature = "traces", feature = "logs"))]
+    pub(crate) fn resource_attributes(resource: Option<&Resource>) -> Attributes {
+        resource
+            .map(|resource| {
+                resource
+                    .iter()
+                    .map(|(k, v)| opentelemetry::KeyValue::new(k.clone(), v.clone()))
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default()
+            .into()
     }
 }

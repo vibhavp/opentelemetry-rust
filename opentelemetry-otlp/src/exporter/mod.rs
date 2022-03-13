@@ -12,13 +12,13 @@ use crate::Protocol;
 use std::str::FromStr;
 use std::time::Duration;
 
-/// Target to which the exporter is going to send spans or metrics, defaults to https://localhost:4317.
+/// Target to which the exporter is going to send telemetry data defaults to https://localhost:4317.
 pub const OTEL_EXPORTER_OTLP_ENDPOINT: &str = "OTEL_EXPORTER_OTLP_ENDPOINT";
-/// Default target to which the exporter is going to send spans or metrics.
+/// Default target to which the exporter is going to send telemetry data.
 pub const OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT: &str = "https://localhost:4317";
-/// Max waiting time for the backend to process each spans or metrics batch, defaults to 10 seconds.
+/// Max waiting time for the backend to process each spans/metrics/logs batch, defaults to 10 seconds.
 pub const OTEL_EXPORTER_OTLP_TIMEOUT: &str = "OTEL_EXPORTER_OTLP_TIMEOUT";
-/// Default max waiting time for the backend to process each spans or metrics batch.
+/// Default max waiting time for the backend to process each spans/metrics/logs batch.
 pub const OTEL_EXPORTER_OTLP_TIMEOUT_DEFAULT: u64 = 10;
 
 /// Target to which the exporter is going to send spans, defaults to https://localhost:4317.
